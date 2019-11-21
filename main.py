@@ -9,8 +9,8 @@ SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Geo-Explore"
 
 CHARACTER_SCALING = 1
-TILE_SCALING = 1
-COIN_SCALING = .5
+TILE_SCALING = .5
+COIN_SCALING = 1
 PLAYER_MOVEMENT_SPEED = 4.5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 15
@@ -48,15 +48,14 @@ class MyGame(arcade.Window):
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
         if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
@@ -65,11 +64,7 @@ class MyGame(arcade.Window):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        if key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = 0
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = 0
@@ -83,10 +78,11 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         """ Render the screen. """
+        arcade.start_render()
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
-        arcade.start_render()
+
         # Code to draw the screen goes here
 
 
