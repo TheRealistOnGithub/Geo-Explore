@@ -8,12 +8,19 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Geo-Explore"
 
-CHARACTER_SCALING = 1
-TILE_SCALING = .5
+CHARACTER_SCALING = 2
+TILE_SCALING = 5
 COIN_SCALING = 1
 PLAYER_MOVEMENT_SPEED = 4.5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 15
+
+# How many pixels to keep as a minimum margin between the character
+# and the edge of the screen.
+LEFT_VIEWPORT_MARGIN = 150
+RIGHT_VIEWPORT_MARGIN = 150
+BOTTOM_VIEWPORT_MARGIN = 50
+TOP_VIEWPORT_MARGIN = 100
 
 
 class MyGame(arcade.Window):
@@ -29,6 +36,10 @@ class MyGame(arcade.Window):
         self.player_list = None
         self.player_sprite = None
         arcade.set_background_color(arcade.csscolor.SKY_BLUE)
+
+        # Used to keep track of our scrolling
+        self.view_bottom = 0
+        self.view_left = 0
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
