@@ -9,9 +9,11 @@ SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Geo-Explore"
 
 CHARACTER_SCALING = 1
-TILE_SCALING = .5
+TILE_SCALING = 1
 COIN_SCALING = .5
 PLAYER_MOVEMENT_SPEED = 4.5
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 15
 
 
 class MyGame(arcade.Window):
@@ -24,6 +26,7 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         self.coin_list = None
         self.wall_list = None
+        self.player_list = None
         self.player_sprite = None
         arcade.set_background_color(arcade.csscolor.SKY_BLUE)
 
@@ -32,16 +35,19 @@ class MyGame(arcade.Window):
         self.coin_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
+        self.player_list = arcade.SpriteList()
+
         # Player Setup here
-        self.player_sprite = arcade.Sprite("images/characters/Player", CHARACTER_SCALING)
+        self.player_sprite = arcade.Sprite("images/characters/player_standing.png", CHARACTER_SCALING)
         self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 120
+        self.player_sprite.center_y = 96
         self.player_list.append(self.player_sprite)
+
         for x in range(0, 1250, 64):
-            ground = arcade.Sprite("images/tiles/grass.png", TILE_SCALING)
-            ground.center_x = x
-            ground.center_y = 32
-            self.wall_list.append(ground)
+            wall = arcade.Sprite("images/tiles/grass_summer.png", TILE_SCALING)
+            wall.center_x = x
+            wall.center_y = 32
+            self.wall_list.append(wall)
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
     def on_key_press(self, key, modifiers):
