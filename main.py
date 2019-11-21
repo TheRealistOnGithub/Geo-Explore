@@ -11,6 +11,7 @@ SCREEN_TITLE = "Geo-Explore"
 CHARACTER_SCALING = 1
 TILE_SCALING = .5
 COIN_SCALING = .5
+PLAYER_MOVEMENT_SPEED = 4.5
 
 
 class MyGame(arcade.Window):
@@ -24,19 +25,61 @@ class MyGame(arcade.Window):
         self.coin_list = None
         self.wall_list = None
         self.player_sprite = None
-        arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
+        arcade.set_background_color(arcade.csscolor.SKY_BLUE)
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
         self.coin_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
-        #Player Setup here
-        self.player_sprite =arcade.Sprite("Placeholder")
+        # Player Setup here
+        self.player_sprite = arcade.Sprite("images/characters/Player", CHARACTER_SCALING)
+        self.player_sprite.center_x = 64
+        self.player_sprite.center_y = 120
+        self.player_list.append(self.player_sprite)
+        for x in range(0, 1250, 64):
+            ground = arcade.Sprite("images/tiles/grass.png", TILE_SCALING)
+            ground.center_x = x
+            ground.center_y = 32
+            self.wall_list.append(ground)
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
+
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
+
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
+    def on_key_release(self, key, modifiers):
+        """Called when the user releases a key. """
+
+        if key == arcade.key.UP or key == arcade.key.W:
+            self.player_sprite.change_y = 0
+        elif key == arcade.key.DOWN or key == arcade.key.S:
+            self.player_sprite.change_y = 0
+        elif key == arcade.key.LEFT or key == arcade.key.A:
+            self.player_sprite.change_x = 0
+        elif key == arcade.key.RIGHT or key == arcade.key.D:
+            self.player_sprite.change_x = 0
+
+    def on_update(self, delta_time):
+        """ Movement and game logic """
+
+        # Call update on all sprites (The sprites don't do much in this
+        # example though.)
+        self.physics_engine.update()
 
     def on_draw(self):
         """ Render the screen. """
-
+        self.wall_list.draw()
+        self.coin_list.draw()
+        self.player_list.draw()
         arcade.start_render()
         # Code to draw the screen goes here
 
