@@ -41,11 +41,15 @@ class MyGame(arcade.Window):
         self.view_bottom = 0
         self.view_left = 0
 
+        # Load the sounds
+        self.get_coin_sound = arcade.load_sound("sounds/coin.wav")
+        self.jump_sound = arcade.load_sound("sounds/coin.wav")
+        self.hurt_sound = arcade.load_sound("sounds/jump.wav")
+
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
         self.coin_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
-        self.coin_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
 
         # Player Setup here
@@ -67,6 +71,7 @@ class MyGame(arcade.Window):
         if key == arcade.key.UP or key == arcade.key.W:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                arcade.play_sound(self.jump_sound)
         elif key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
@@ -80,12 +85,23 @@ class MyGame(arcade.Window):
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = 0
 
-    def on_update(self, delta_time):
+    def update(self, delta_time):
         """ Movement and game logic """
 
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
         self.physics_engine.update()
+        # See if we hit any coins
+        coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                             self.coin_list)
+
+        # Loop through each coin we hit (if any) and remove it
+        for coin in coin_hit_list:
+            # Remove the coin
+            coin.remove_from_sprite_lists()
+            # Play a sound
+            arcade.play_sound(self.collect_coin_sound)
+            # Add one to the score
         # --- Manage Scrolling ---
 
         # Track if we need to change the viewport
