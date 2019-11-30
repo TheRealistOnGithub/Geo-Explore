@@ -9,7 +9,7 @@ SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Geo-Explore"
 
 CHARACTER_SCALING = 2
-TILE_SCALING = 5
+TILE_SCALING = 2
 COIN_SCALING = 1
 PLAYER_MOVEMENT_SPEED = 4.5
 GRAVITY = 1
@@ -46,24 +46,51 @@ class MyGame(arcade.Window):
         self.jump_sound = arcade.load_sound("sounds/coin.wav")
         self.hurt_sound = arcade.load_sound("sounds/jump.wav")
 
+        # score count
+        self.score = 0
+
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
         self.coin_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
 
+        # Score Setup Here
+        self.score = 0
+
         # Player Setup here
         self.player_sprite = arcade.Sprite("images/characters/player_standing.png", CHARACTER_SCALING)
         self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 96
+        self.player_sprite.center_y = 80
         self.player_list.append(self.player_sprite)
 
-        for x in range(0, 1250, 64):
-            wall = arcade.Sprite("images/tiles/grass_summer.png", TILE_SCALING)
-            wall.center_x = x
-            wall.center_y = 32
-            self.wall_list.append(wall)
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
+        # --- Load in a map from the tiled editor ---
+
+        # Name of map file to load
+        map_name = "map.tmx"
+        # Name of the layer in the file that has our platforms/walls
+        platforms_layer_name = 'Platform'
+        # Name of the layer that has items for pick-up
+        coins_layer_name = 'Coins'
+
+        # Read in the tiled map
+        my_map = arcade.tilemap.read_tmx(map_name)
+
+        # -- Platforms
+        self.wall_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
+
+        # -- Coins
+        self.coin_list = arcade.tilemap.process_layer(my_map, coins_layer_name, TILE_SCALING)
+
+        # --- Other stuff
+        # Set the background color
+        if my_map.background_color:
+            arcade.set_background_color(my_map.background_color)
+
+        # Create the 'physics engine'
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
+                                                             self.wall_list,
+                                                             GRAVITY)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -102,6 +129,7 @@ class MyGame(arcade.Window):
             # Play a sound
             arcade.play_sound(self.collect_coin_sound)
             # Add one to the score
+            self.score += 1
         # --- Manage Scrolling ---
 
         # Track if we need to change the viewport
@@ -146,12 +174,17 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         """ Render the screen. """
+        # Clear the Screen
         arcade.start_render()
+
+        # Draw Sprites
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
 
-        # Code to draw the screen goes here
+        # Draw the amount of Lives the player has
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(score_text, 10 + self.view_left, 600 + self.view_bottom, arcade.csscolor.WHITE, 18)
 
 
 def main():

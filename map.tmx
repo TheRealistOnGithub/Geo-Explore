@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.1" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="100" height="25" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" name="my_tiles" tilewidth="16" tileheight="16" tilecount="1" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="16" height="16" source="images/tiles/grass_summer.png"/>
+  </tile>
+ </tileset>
+ <layer id="1" name="Platform" width="100" height="25">
+  <data encoding="base64" compression="zlib">
+   eAHt0cEJwDAQA0Gn/6ZDWlhQPh6DnxLH6ByPAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAwE7g2VVrDgL2CGjDiD2GuKHaHgFtGLHHEDdU2yOgDSP2GOKG6m+Pv34477rIC4J0ACM=
+  </data>
+ </layer>
+</map>
