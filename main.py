@@ -1,6 +1,11 @@
 """
 Platformer Game
 """
+import wave
+import threading
+import sys
+import os
+import winsound
 import arcade
 
 # Constants
@@ -22,6 +27,12 @@ RIGHT_VIEWPORT_MARGIN = 150
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 100
 
+# Game States
+TITLE_SCREEN = 0
+INSTRUCTIONS = 1
+GAME_RUNNING = 2
+GAME_OVER = 3
+
 
 class MyGame(arcade.Window):
     """
@@ -35,6 +46,10 @@ class MyGame(arcade.Window):
         self.wall_list = None
         self.player_list = None
         self.player_sprite = None
+
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(file_path)
+
         arcade.set_background_color(arcade.csscolor.SKY_BLUE)
 
         # Used to keep track of our scrolling
@@ -43,9 +58,9 @@ class MyGame(arcade.Window):
 
         # Load the sounds
         self.get_coin_sound = arcade.load_sound("sounds/coin.wav")
-        self.jump_sound = arcade.load_sound("sounds/coin.wav")
-        self.hurt_sound = arcade.load_sound("sounds/jump.wav")
-
+        self.jump_sound = arcade.load_sound("sounds/jump.wav")
+        self.hurt_sound = arcade.load_sound("sounds/hurt.wav")
+        self.theme_music = arcade.load_sound("sounds/overworld_music.wav")
         # score count
         self.score = 0
 
@@ -86,11 +101,12 @@ class MyGame(arcade.Window):
         # Set the background color
         if my_map.background_color:
             arcade.set_background_color(my_map.background_color)
+        # Play the theme music on loop
 
+        winsound.PlaySound("C:/Users/Nitin/PycharmProjects/Geo-Explore/sounds/overworld_music.wav",
+                           winsound.SND_LOOP + winsound.SND_ASYNC)
         # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                             self.wall_list,
-                                                             GRAVITY)
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
