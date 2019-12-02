@@ -7,6 +7,7 @@ import sys
 import os
 import winsound
 import arcade
+import pyglet
 
 # Constants
 SCREEN_WIDTH = 1000
@@ -19,6 +20,8 @@ COIN_SCALING = 1
 PLAYER_MOVEMENT_SPEED = 4.5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 15
+SPRITE_PIXEL_SIZE = 256
+GRID_PIXEL_SIZE = (SPRITE_PIXEL_SIZE * TILE_SCALING)
 
 # How many pixels to keep as a minimum margin between the character
 # and the edge of the screen.
@@ -26,7 +29,8 @@ LEFT_VIEWPORT_MARGIN = 150
 RIGHT_VIEWPORT_MARGIN = 150
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 100
-
+PLAYER_START_X = 64
+PLAYER_START_Y = 64
 # Game States
 TITLE_SCREEN = 0
 INSTRUCTIONS = 1
@@ -61,8 +65,12 @@ class MyGame(arcade.Window):
         self.jump_sound = arcade.load_sound("sounds/jump.wav")
         self.hurt_sound = arcade.load_sound("sounds/hurt.wav")
         self.theme_music = arcade.load_sound("sounds/overworld_music.wav")
+
         # score count
         self.score = 0
+
+        # Right edge of the map
+        self.edge_of_map = 0
 
     def setup(self):
         """ Set up the game here. Call this function to restart the game. """
@@ -73,10 +81,13 @@ class MyGame(arcade.Window):
         # Score Setup Here
         self.score = 0
 
+        # Level
+        self.level = 1
+
         # Player Setup here
         self.player_sprite = arcade.Sprite("images/characters/player_standing.png", CHARACTER_SCALING)
         self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 80
+        self.player_sprite.center_y = 64
         self.player_list.append(self.player_sprite)
 
         # --- Load in a map from the tiled editor ---
@@ -87,6 +98,10 @@ class MyGame(arcade.Window):
         platforms_layer_name = 'Platform'
         # Name of the layer that has items for pick-up
         coins_layer_name = 'Coins'
+        # Name of the layer that has items for background
+        background_layer_name = 'Background'
+        # Name of the layer that has items we shouldn't touch
+        dont_touch_layer_name = "Don't Touch"
 
         # Read in the tiled map
         my_map = arcade.tilemap.read_tmx(map_name)
@@ -97,14 +112,20 @@ class MyGame(arcade.Window):
         # -- Coins
         self.coin_list = arcade.tilemap.process_layer(my_map, coins_layer_name, TILE_SCALING)
 
+        # Background
+        self.background_list = arcade.tilemap.process_layer(my_map,
+                                                            background_layer_name,
+                                                            TILE_SCALING)
+        # -- Don't Touch Layer
+        self.dont_touch_list = arcade.tilemap.process_layer(my_map,
+                                                            dont_touch_layer_name,
+                                                            TILE_SCALING)
         # --- Other stuff
         # Set the background color
         if my_map.background_color:
             arcade.set_background_color(my_map.background_color)
         # Play the theme music on loop
 
-        winsound.PlaySound("C:/Users/Nitin/PycharmProjects/Geo-Explore/sounds/overworld_music.wav",
-                           winsound.SND_LOOP + winsound.SND_ASYNC)
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
@@ -187,6 +208,29 @@ class MyGame(arcade.Window):
                                 SCREEN_WIDTH + self.view_left,
                                 self.view_bottom,
                                 SCREEN_HEIGHT + self.view_bottom)
+        # Did the player fall off the map?
+        if self.player_sprite.center_y < -100:
+            self.player_sprite.center_x = PLAYER_START_X
+            self.player_sprite.center_y = PLAYER_START_Y
+
+            # Set the camera to the start
+            self.view_left = 0
+            self.view_bottom = 0
+            changed_viewport = True
+            arcade.play_sound(self.game_over)
+        # Did the player touch something they should not?
+        if arcade.check_for_collision_with_list(self.player_sprite,
+                                                self.dont_touch_list):
+            self.player_sprite.change_x = 0
+            self.player_sprite.change_y = 0
+            self.player_sprite.center_x = PLAYER_START_X
+            self.player_sprite.center_y = PLAYER_START_Y
+
+            # Set the camera to the start
+            self.view_left = 0
+            self.view_bottom = 0
+            changed_viewport = True
+            arcade.play_sound(self.game_over)
 
     def on_draw(self):
         """ Render the screen. """
