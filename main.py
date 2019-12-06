@@ -39,6 +39,38 @@ GAME_RUNNING = 2
 GAME_OVER = 3
 
 
+class MenuView(arcade.View):
+    '''
+    Try to display the title screen
+    '''
+    def __init__(self):
+        super().__init__()
+        self.background = None
+
+    def on_show(self):
+        self.background = arcade.load_texture("images/screens/title.png")
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        instructions_view = InstructionView()
+        self.window.show_view(instructions_view)
+
+
+class InstructionView(arcade.View):
+    '''
+    Try to display the Instruction_Screen
+    '''
+    def __init__(self):
+        super().__init__()
+        self.background = None
+
+    def on_show(self):
+        self.background = arcade.load_texture("images/screens/instructions.png")
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        game_view = MyGame()
+        self.window.show_view(MyGame)
+
+
 class MyGame(arcade.Window):
     """
     Main application class.
@@ -77,6 +109,8 @@ class MyGame(arcade.Window):
         self.game_over = False
         # Keep track of the score
         self.score = 0
+        # Death Tracking
+        self.death = 0
 
         # Where is the right edge of the map?
         self.end_of_map = 0
@@ -100,6 +134,8 @@ class MyGame(arcade.Window):
 
         # Keep track of the score
         self.score = 0
+
+        self.death = 0
 
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
@@ -167,7 +203,7 @@ class MyGame(arcade.Window):
         # Enemy Layer
         self.enemy_list = arcade.tilemap.process_layer(my_map, enemy_layer_name, CHARACTER_SCALING)
 
-        enemy = arcade.Sprite("images/enemy_hexagon.png", CHARACTER_SCALING)
+        enemy = arcade.Sprite("images/characters/enemy_hexagon.png", CHARACTER_SCALING)
         enemy.change_x = 2
         self.enemy_list.append(enemy)
 
@@ -208,6 +244,10 @@ class MyGame(arcade.Window):
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom,
                          arcade.csscolor.WHITE, 18)
+
+        # Draw the number of player deaths
+        death_text = f"Deaths:{self.death}"
+        arcade.draw_text(death_text, 10 + self.view_left, 150 + self.view_bottom, arcade.csscolor.RED, 18)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -309,6 +349,7 @@ class MyGame(arcade.Window):
         if self.player_sprite.center_y < -100:
             self.player_sprite.center_x = PLAYER_START_X
             self.player_sprite.center_y = PLAYER_START_Y
+            self.death += 1
 
             # Set the camera to the start
             self.view_left = 0
@@ -358,9 +399,11 @@ class MyGame(arcade.Window):
                 # If the enemy hit the right boundary, reverse
                 elif enemy.boundary_right is not None and enemy.right > enemy.boundary_right:
                     enemy.change_x *= -1
-                # See if the player hit a enemy. If so, game over.
+                # See if the player hit a enemy. If so, increment deaths.
                 if len(arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)) > 0:
-                    self.game_over = True
+                    self.player_sprite.center_x = PLAYER_START_X
+                    self.player_sprite.center_y = PLAYER_START_Y
+                    self.death += 1
 
         # --- Manage Scrolling ---
 
@@ -405,6 +448,8 @@ def main():
     """ Main method """
     window = MyGame()
     window.setup(window.level)
+    menu_view = MenuView()
+    window.show_view(menu_view)
     arcade.run()
 
 
