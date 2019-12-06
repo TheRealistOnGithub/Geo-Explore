@@ -59,6 +59,8 @@ class MyGame(arcade.Window):
         self.background_list = None
         self.dont_touch_list = None
         self.player_list = None
+        self.enemy_list = None
+        self.arrow_list = None
 
         # Separate variable that holds the player sprite
         self.player_sprite = None
@@ -70,6 +72,8 @@ class MyGame(arcade.Window):
         self.view_bottom = 0
         self.view_left = 0
 
+        # is game over?
+        self.game_over = False
         # Keep track of the score
         self.score = 0
 
@@ -100,6 +104,7 @@ class MyGame(arcade.Window):
         self.background_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
+        self.enemy_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = arcade.Sprite("images/characters/player_standing.png",
@@ -120,6 +125,7 @@ class MyGame(arcade.Window):
         background_layer_name = 'Background'
         # Name of the layer that has items we shouldn't touch
         dont_touch_layer_name = "Don't Touch"
+        enemy_layer_name = "Enemies"
 
         # Map name
         map_name = f"map_level_{level}.tmx"
@@ -154,7 +160,8 @@ class MyGame(arcade.Window):
         self.dont_touch_list = arcade.tilemap.process_layer(my_map,
                                                             dont_touch_layer_name,
                                                             TILE_SCALING)
-
+        # Enemy Layer
+        self.enemy_list = arcade.tilemap.process_layer(my_map, enemy_layer_name, CHARACTER_SCALING)
         # --- Other stuff
         # Set the background color
         if my_map.background_color:
