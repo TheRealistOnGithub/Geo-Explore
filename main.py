@@ -4,7 +4,7 @@ Platformer Game
 
 import sys
 import os
-
+import math
 import arcade
 import pyglet
 
@@ -13,9 +13,11 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Geo-Explore"
 
-CHARACTER_SCALING = 1
+CHARACTER_SCALING = .8
 TILE_SCALING = 1
 COIN_SCALING = 1
+ARROW_SCALING = .8
+BULLET_SPEED = 5
 PLAYER_MOVEMENT_SPEED = 4.5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 15
@@ -36,10 +38,6 @@ INSTRUCTIONS = 1
 GAME_RUNNING = 2
 GAME_OVER = 3
 
-# Player Start
-PLAYER_START_X = 16
-PLAYER_START_Y = 16
-
 
 class MyGame(arcade.Window):
     """
@@ -50,6 +48,9 @@ class MyGame(arcade.Window):
 
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+
+        # set background color
+        arcade.set_background_color(arcade.csscolor.SKY_BLUE)
 
         # These are 'lists' that keep track of our sprites. Each sprite should
         # go into a list.
@@ -86,7 +87,9 @@ class MyGame(arcade.Window):
         # Load sounds
         self.collect_coin_sound = arcade.load_sound("sounds/coin.wav")
         self.jump_sound = arcade.load_sound("sounds/jump.wav")
-        self.game_over = arcade.load_sound("sounds/hurt.wav")
+        self.death = arcade.load_sound("sounds/hurt.wav")
+        self.shoot = arcade.load_sound("sounds/arrow_shoot.wav")
+        self.hit = arcade.load_sound("sounds/arrow_shoot.wav")
 
     def setup(self, level):
         """ Set up the game here. Call this function to restart the game. """
@@ -105,6 +108,7 @@ class MyGame(arcade.Window):
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+        self.arrow_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = arcade.Sprite("images/characters/player_standing.png",
@@ -162,6 +166,17 @@ class MyGame(arcade.Window):
                                                             TILE_SCALING)
         # Enemy Layer
         self.enemy_list = arcade.tilemap.process_layer(my_map, enemy_layer_name, CHARACTER_SCALING)
+
+        enemy = arcade.Sprite("images/enemy_hexagon.png", CHARACTER_SCALING)
+        enemy.change_x = 2
+        self.enemy_list.append(enemy)
+
+        # set boundaries for the enemies
+        enemy.boundary_right = SPRITE_PIXEL_SIZE * 8
+        enemy.boundary_left = SPRITE_PIXEL_SIZE * 3
+        enemy.change_x = 2
+        self.enemy_list.append(enemy)
+
         # --- Other stuff
         # Set the background color
         if my_map.background_color:
@@ -186,11 +201,13 @@ class MyGame(arcade.Window):
         self.dont_touch_list.draw()
         self.player_list.draw()
         self.foreground_list.draw()
+        self.enemy_list.draw()
+        self.arrow_list.draw()
 
         # Draw our score on the screen, scrolling it with the viewport
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom,
-                         arcade.csscolor.BLACK, 18)
+                         arcade.csscolor.WHITE, 18)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -203,6 +220,46 @@ class MyGame(arcade.Window):
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        '''
+        Called whenever the mouse moves
+        '''
+        # Create a bullet
+        bullet = arcade.Sprite("images/misc/arrow.png", ARROW_SCALING)
+
+        # place the arrow at players current location
+        start_x = self.player_sprite.center_x
+        start_y = self.player_sprite.center_y
+
+        bullet.center_x = start_x
+        bullet.center_y = start_y
+
+        # Get from the mouse the destination location for the bullet
+        # IMPORTANT! If you have a scrolling screen, you will also need
+        # to add in self.view_bottom and self.view_left.
+        dest_x = x
+        dest_y = y
+
+        # Do math to calculate how to get the bullet to the destination.
+        # Calculation the angle in radians between the start points
+        # and end points. This is the angle the bullet will travel.
+        x_diff = dest_x - start_x
+        y_diff = dest_y - start_y
+        angle = math.atan2(y_diff, x_diff)
+
+        # Angle the bullet sprite so it doesn't look like it is flying
+        # sideways.
+        bullet.angle = math.degrees(angle)
+        print(f"Bullet angle: {bullet.angle:.2f}")
+
+        # Taking into account the angle, calculate our change_x
+        # and change_y. Velocity is how fast the bullet travels.
+        bullet.change_x = math.cos(angle) * BULLET_SPEED
+        bullet.change_y = math.sin(angle) * BULLET_SPEED
+
+        # Add the bullet to the appropriate lists
+        self.bullet_list.append(bullet)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -218,6 +275,19 @@ class MyGame(arcade.Window):
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
         self.physics_engine.update()
+        # update all sprites
+        self.arrow_list.update()
+
+        # Loop  through each Arrow
+        for arrow in self.arrow_list:
+            hit_list = arcade.check_for_collision_with_list(arrow, self.enemy_list)
+            if len(hit_list) > 0:
+                arrow.remove_from_sprite_lists()
+            for enemy in hit_list:
+                enemy.remove_from_sprite_lists()
+                self.score += 5
+            if arrow.bottom > self.width or arrow.top < 0 or arrow.right < 0 or arrow.left > self.width:
+                arrow.remove_from_sprite_lists()
 
         # See if we hit any coins
         coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
@@ -244,7 +314,7 @@ class MyGame(arcade.Window):
             self.view_left = 0
             self.view_bottom = 0
             changed_viewport = True
-            arcade.play_sound(self.game_over)
+            arcade.play_sound(self.death)
 
         # Did the player touch something they should not?
         if arcade.check_for_collision_with_list(self.player_sprite,
@@ -258,7 +328,7 @@ class MyGame(arcade.Window):
             self.view_left = 0
             self.view_bottom = 0
             changed_viewport = True
-            arcade.play_sound(self.game_over)
+            arcade.play_sound(self.death)
 
         # See if the user got to the end of the level
         if self.player_sprite.center_x >= self.end_of_map:
@@ -272,6 +342,25 @@ class MyGame(arcade.Window):
             self.view_left = 0
             self.view_bottom = 0
             changed_viewport = True
+
+        if not self.game_over:
+            # Move the enemies
+            self.enemy_list.update()
+
+            # Check each enemy
+            for enemy in self.enemy_list:
+                # If the enemy hit a wall, reverse
+                if len(arcade.check_for_collision_with_list(enemy, self.wall_list)) > 0:
+                    enemy.change_x *= -1
+                # If the enemy hit the left boundary, reverse
+                elif enemy.boundary_left is not None and enemy.left < enemy.boundary_left:
+                    enemy.change_x *= -1
+                # If the enemy hit the right boundary, reverse
+                elif enemy.boundary_right is not None and enemy.right > enemy.boundary_right:
+                    enemy.change_x *= -1
+                # See if the player hit a enemy. If so, game over.
+                if len(arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)) > 0:
+                    self.game_over = True
 
         # --- Manage Scrolling ---
 

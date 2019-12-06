@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.1" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="75" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="1">
+<map version="1.2" tiledversion="1.3.1" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="80" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="1">
  <tileset firstgid="1" name="my_tiles" tilewidth="320" tileheight="256" tilecount="7" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="23">
@@ -24,29 +24,34 @@
    <image width="16" height="16" source="images/tiles/grass_top.png"/>
   </tile>
  </tileset>
- <layer id="4" name="Don't Touch" width="75" height="16">
+ <layer id="4" name="Don't Touch" width="80" height="16">
   <data encoding="base64" compression="zlib">
-   eAHt0DEBAAAAwqD1T20ND4hAYcCAAQMGDBgwYMCAAQMGDBgwYOB3YBLAAAE=
+   eAHt0AENAAAAwqD3T20PBxEoDBgwYMCAAQMGDBgwYMCAAQMGDBh4HRgUAAAB
   </data>
  </layer>
- <layer id="7" name="Foreground" width="75" height="16">
+ <layer id="10" name="Enemies" width="80" height="16">
   <data encoding="base64" compression="zlib">
-   eAHt0DEBAAAAwqD1T20ND4hAYcCAAQMGDBgwYMCAAQMGDBgwYOB3YBLAAAE=
+   eAHt0AENAAAAwqD3T20PBxEoDBgwYMCAAQMGDBgwYMCAAQMGDBh4HRgUAAAB
   </data>
  </layer>
- <layer id="5" name="Background" width="75" height="16">
+ <layer id="7" name="Foreground" width="80" height="16">
   <data encoding="base64" compression="zlib">
-   eAHt0EENAAAMAjGkzL/KmSB7LEXAkTQxAgQIECBAgAABAgQIECBAgACBa4EpH37uLWzAAIE=
+   eAHt0AENAAAAwqD3T20PBxEoDBgwYMCAAQMGDBgwYMCAAQMGDBh4HRgUAAAB
   </data>
  </layer>
- <layer id="3" name="Coins" width="75" height="16">
+ <layer id="5" name="Background" width="80" height="16">
   <data encoding="base64" compression="zlib">
-   eAHtktEKgDAIRfcr/f9Plg8HLmNGY9HWdBDXFJ33VCl5ohE4LsM80bzjN7p/OIzqHUdqno7ePbtffbV2od6qZW5/AvX35111BQq2T5SzGvuZ3HdkgSfl+pf/+8s9vbu8vPKMEhuLN3kwT7WHJX3WQ4zWcyw/cpjb0t65zNA+cqjWMk4CSSAJPCFwAjKNCKQ=
+   eAHt0EENAAAMAjGkzL/KmeCxZEXAhTQxAgQIECBAgAABAgQIECBAgAABAncFpnztW28BeAAAgQ==
   </data>
  </layer>
- <layer id="1" name="Platform" width="75" height="16">
+ <layer id="3" name="Coins" width="80" height="16">
   <data encoding="base64" compression="zlib">
-   eAHtlGsOwyAMg3uM/d7j/ldcreqbrAhYH7BWg0g0EIyTuLTTNGwoMBTIKXCbNxg5zL/He++/1vst6chezteq4Swe7ytVA/upvR5ijx6arNCjdLpX4NlLoXt6FXvNhZTGmTpdRaPWdeg+xndwNKf4nkdJNp5v/f/hu9Wd9LGxzA9cGsng+pVe9LFkr/+En77c780mDplztdbL+1iy173Tzu99MSfnN+/frmPhwbfSK/ZBDcq7JqfX73N4Ij/9uAfr5+NcmNSZGAeTqj1yxjV14OM+3HhwrCNeazdw0YOJ8dR6DVYYP8uZGHeM1+74MS8r8AbPEhek
+   eAHtk1sKwCAMBHOV3v+SbT6GLqIFIaDFFcqmSfNwtBFeJhBxPRB4zOMlYCYvi2rriy2xkVbPskM93WtvHuK9mH0mAIH2nvCuyrcrNec5ee12HrudxSl82Kfy/8u/sXrOUf+RXxmfbCefSkbUU53hS17mYKNtnfRXL3r1dLYXNTQPH6ox2yZgAiawgsANzYgIpA==
+  </data>
+ </layer>
+ <layer id="1" name="Platform" width="80" height="16">
+  <data encoding="base64" compression="zlib">
+   eAHtlFkOwyAQQ3OMfne5/xUbK3qSNaIJZSlRAxIdFo/xONBlmW06MB2odeC2EtBruf4pf3rS72vuecvep9hP1ThmrzWlgv3U3lXXHlctvEHd8u7egKeUQvf5zO21itvrI707s2+9tenexu9Se6b4nrUkDfJ7/5/x5nV3vZdKl29qcI30kNo2Re1/4adWj6WniUPNuUZ46LVtitq+B+f3Whlz5lH0d+9YeIi/9DDWhi5pydHhNfkYnshPjR7Ben4cC5PKietgcrQrN54T58J4i/ucRwTLPOI19wYuRjBxPTXPwQrjueTEdcektPuac8zx9w68AfA9GF0=
   </data>
  </layer>
 </map>
